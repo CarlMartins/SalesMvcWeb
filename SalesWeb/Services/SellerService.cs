@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SalesWeb.Models;
+using SalesWeb.Services.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -37,6 +39,24 @@ namespace SalesWeb.Services
         {
             _context.Add(obj);
             _context.SaveChanges();
+        }
+
+        public void Update(Seller obj)
+        {
+            if(!_context.Sellers.Any(x => x.Id == obj.Id))
+            {
+                throw new NotFoundException("Id not found.");
+            }
+
+            try
+            {
+            _context.Update(obj);
+            _context.SaveChanges();
+            }
+            catch(DbUpdateConcurrencyException e)
+            {
+                throw new DBConcurrencyException(e.Message);
+            }
         }
     }
 }
